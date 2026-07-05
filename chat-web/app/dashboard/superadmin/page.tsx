@@ -1,5 +1,6 @@
 import { logoutAction } from "@/app/dashboard/actions";
-import { updateUserRoleAction } from "@/app/dashboard/superadmin/actions";
+import { updateLoginBackgroundAction, updateUserRoleAction } from "@/app/dashboard/superadmin/actions";
+import { getLoginBackgroundUrl } from "@/lib/app-settings";
 import { requireRole } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
@@ -10,6 +11,7 @@ type SuperAdminDashboardProps = {
 export default async function SuperAdminDashboardPage({ searchParams }: SuperAdminDashboardProps) {
   const currentUser = await requireRole(["SUPERADMIN"]);
   const { error, success } = await searchParams;
+  const loginBackgroundUrl = await getLoginBackgroundUrl();
 
   const users = await prisma.user.findMany({
     orderBy: { createdAt: "desc" },
@@ -39,6 +41,44 @@ export default async function SuperAdminDashboardPage({ searchParams }: SuperAdm
             </button>
           </form>
         </header>
+
+        <section className="mb-6 rounded-2xl border border-blue-100 bg-white p-6 shadow-md shadow-blue-100/60">
+          <h2 className="mb-4 text-xl font-semibold text-slate-900">ตั้งค่าพื้นหลังหน้า Login</h2>
+          <p className="mb-4 text-sm text-slate-600">
+            แนะนำรูปขนาด 1920x1080 และระบบจะแสดงแบบเต็มจอ responsive ตามอุปกรณ์
+          </p>
+
+          <form action={updateLoginBackgroundAction} className="space-y-4">
+            <label className="block space-y-2">
+              <span className="text-sm font-medium text-slate-700">URL รูปภาพ</span>
+              <input
+                type="url"
+                name="backgroundUrl"
+                placeholder="https://example.com/login-bg.jpg หรือ /uploads/login-bg.jpg"
+                className="w-full rounded-lg border border-blue-200 px-3 py-2 text-sm text-slate-700 outline-none focus:border-blue-500"
+              />
+            </label>
+
+            <label className="block space-y-2">
+              <span className="text-sm font-medium text-slate-700">หรืออัปโหลดไฟล์ (JPG, PNG, WEBP)</span>
+              <input
+                type="file"
+                name="backgroundFile"
+                accept="image/jpeg,image/png,image/webp"
+                className="block w-full text-sm text-slate-700 file:mr-4 file:rounded-md file:border-0 file:bg-blue-700 file:px-4 file:py-2 file:font-semibold file:text-white hover:file:bg-blue-800"
+              />
+            </label>
+
+            <button
+              type="submit"
+              className="rounded-lg bg-blue-700 px-4 py-2 text-sm font-semibold text-white transition hover:bg-blue-800"
+            >
+              บันทึกพื้นหลัง Login
+            </button>
+          </form>
+
+          <p className="mt-4 text-sm text-slate-600">รูปที่ใช้งานปัจจุบัน: {loginBackgroundUrl ?? "ยังไม่ได้ตั้งค่า"}</p>
+        </section>
 
         <section className="rounded-2xl border border-blue-100 bg-white p-6 shadow-md shadow-blue-100/60">
           <h2 className="mb-4 text-xl font-semibold text-slate-900">จัดการสิทธิ์ผู้ใช้งาน</h2>

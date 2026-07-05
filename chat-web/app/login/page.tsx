@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { redirectIfAuthenticated, loginAction } from "@/app/login/actions";
+import { getLoginBackgroundUrl } from "@/lib/app-settings";
 
 type LoginPageProps = {
   searchParams: Promise<{ error?: string }>;
@@ -9,10 +10,20 @@ type LoginPageProps = {
 export default async function LoginPage({ searchParams }: LoginPageProps) {
   await redirectIfAuthenticated();
   const { error } = await searchParams;
+  const loginBackgroundUrl = await getLoginBackgroundUrl();
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-100 px-4">
-      <section className="w-full max-w-md rounded-2xl border border-blue-100 bg-white p-8 shadow-lg shadow-blue-100/60">
+    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-slate-900 px-4">
+      {loginBackgroundUrl ? (
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: `url(${loginBackgroundUrl})` }}
+          aria-hidden="true"
+        />
+      ) : null}
+      <div className="absolute inset-0 bg-slate-900/55" aria-hidden="true" />
+
+      <section className="relative z-10 w-full max-w-md rounded-2xl border border-blue-100 bg-white/95 p-8 shadow-2xl shadow-blue-900/20 backdrop-blur-sm">
         <header className="mb-8 space-y-2 text-center">
           <p className="text-xs font-semibold tracking-[0.2em] text-blue-700">CHAT WEB</p>
           <h1 className="text-3xl font-semibold text-slate-900">Login</h1>
