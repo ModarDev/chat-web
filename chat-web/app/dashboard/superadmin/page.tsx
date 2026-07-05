@@ -45,7 +45,7 @@ export default async function SuperAdminDashboardPage({ searchParams }: SuperAdm
         <section className="mb-6 rounded-2xl border border-blue-100 bg-white p-6 shadow-md shadow-blue-100/60">
           <h2 className="mb-4 text-xl font-semibold text-slate-900">ตั้งค่าพื้นหลังหน้า Login</h2>
           <p className="mb-4 text-sm text-slate-600">
-            แนะนำรูปขนาด 1920x1080 และระบบจะแสดงแบบเต็มจอ responsive ตามอุปกรณ์
+            แนะนำรูปขนาด 1920x1080 และระบบจะแสดงแบบเต็มจอ responsive ตามอุปกรณ์ (อัปโหลดลง S3/SeaweedFS)
           </p>
 
           <form action={updateLoginBackgroundAction} className="space-y-4">
@@ -54,7 +54,7 @@ export default async function SuperAdminDashboardPage({ searchParams }: SuperAdm
               <input
                 type="url"
                 name="backgroundUrl"
-                placeholder="https://example.com/login-bg.jpg หรือ /uploads/login-bg.jpg"
+                placeholder="https://cdn.example.com/login-bg.jpg"
                 className="w-full rounded-lg border border-blue-200 px-3 py-2 text-sm text-slate-700 outline-none focus:border-blue-500"
               />
             </label>

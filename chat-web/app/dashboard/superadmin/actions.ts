@@ -1,14 +1,12 @@
 "use server";
 
-import { mkdir, writeFile } from "node:fs/promises";
-import path from "node:path";
-
 import type { Role } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { setLoginBackgroundUrl } from "@/lib/app-settings";
 import { requireRole } from "@/lib/auth";
+import { uploadObject } from "@/lib/object-storage";
 import { prisma } from "@/lib/prisma";
 
 const ROLES: Role[] = ["USER", "ADMIN", "SUPERADMIN"];
@@ -73,6 +71,23 @@ function parseBackgroundUrl(rawValue: string) {
   return value;
 }
 
+function buildObjectPublicUrl(key: string) {
+  const publicBaseUrl = process.env.S3_PUBLIC_BASE_URL?.trim();
+
+  if (publicBaseUrl) {
+    return `${publicBaseUrl.replace(/\/+$/, "")}/${key}`;
+  }
+
+  const endpoint = process.env.S3_ENDPOINT?.trim();
+  const bucket = process.env.S3_BUCKET?.trim();
+
+  if (!endpoint || !bucket) {
+    return null;
+  }
+
+  return `${endpoint.replace(/\/+$/, "")}/${bucket}/${key}`;
+}
+
 export async function updateLoginBackgroundAction(formData: FormData) {
   await requireRole(["SUPERADMIN"]);
 
@@ -110,18 +125,25 @@ export async function updateLoginBackgroundAction(formData: FormData) {
   }
 
   const buffer = Buffer.from(await file.arrayBuffer());
-  const fileName = `login-background-${Date.now()}.${ext}`;
-  const uploadsDir = path.join(process.cwd(), "public", "uploads");
-  const targetPath = path.join(uploadsDir, fileName);
+  const objectKey = `login-backgrounds/${Date.now()}-${crypto.randomUUID()}.${ext}`;
 
   try {
-    await mkdir(uploadsDir, { recursive: true });
-    await writeFile(targetPath, buffer);
+    await uploadObject({
+      key: objectKey,
+      contentType: file.type,
+      body: buffer,
+    });
   } catch {
-    redirect("/dashboard/superadmin?error=อัปโหลดไฟล์ไม่สำเร็จบนเซิร์ฟเวอร์ กรุณาใช้ URL รูปภาพแทน");
+    redirect("/dashboard/superadmin?error=อัปโหลดไปที่ S3/SeaweedFS ไม่สำเร็จ กรุณาตรวจสอบการตั้งค่า");
   }
 
-  const updated = await setLoginBackgroundUrl(`/uploads/${fileName}`);
+  const publicUrl = buildObjectPublicUrl(objectKey);
+
+  if (!publicUrl) {
+    redirect("/dashboard/superadmin?error=ยังไม่ได้ตั้งค่า S3_PUBLIC_BASE_URL หรือ S3_ENDPOINT/S3_BUCKET");
+  }
+
+  const updated = await setLoginBackgroundUrl(publicUrl);
 
   if (!updated) {
     redirect("/dashboard/superadmin?error=ยังไม่พร้อมอัปเดตพื้นหลัง กรุณารัน migration ก่อน");
