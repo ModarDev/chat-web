@@ -1,12 +1,12 @@
 import Link from "next/link";
 
-import { redirectIfAuthenticated, loginAction } from "@/app/login/actions";
+import { registerAction, redirectIfAuthenticated } from "@/app/login/actions";
 
-type LoginPageProps = {
+type RegisterPageProps = {
   searchParams: Promise<{ error?: string }>;
 };
 
-export default async function LoginPage({ searchParams }: LoginPageProps) {
+export default async function RegisterPage({ searchParams }: RegisterPageProps) {
   await redirectIfAuthenticated();
   const { error } = await searchParams;
 
@@ -15,11 +15,22 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
       <section className="w-full max-w-md rounded-2xl border border-blue-100 bg-white p-8 shadow-lg shadow-blue-100/60">
         <header className="mb-8 space-y-2 text-center">
           <p className="text-xs font-semibold tracking-[0.2em] text-blue-700">CHAT WEB</p>
-          <h1 className="text-3xl font-semibold text-slate-900">Login</h1>
-          <p className="text-sm text-slate-500">ลงชื่อเข้าใช้เพื่อเข้าสู่หน้าแดชบอร์ด</p>
+          <h1 className="text-3xl font-semibold text-slate-900">Register</h1>
+          <p className="text-sm text-slate-500">สมัครสมาชิกใหม่และเริ่มใช้งานระบบ</p>
         </header>
 
-        <form action={loginAction} className="space-y-4">
+        <form action={registerAction} className="space-y-4">
+          <label className="block space-y-2">
+            <span className="text-sm font-medium text-slate-700">ชื่อผู้ใช้งาน</span>
+            <input
+              type="text"
+              name="name"
+              required
+              className="w-full rounded-xl border border-blue-200 px-4 py-3 text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+              placeholder="Your Name"
+            />
+          </label>
+
           <label className="block space-y-2">
             <span className="text-sm font-medium text-slate-700">Email</span>
             <input
@@ -37,8 +48,9 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
               type="password"
               name="password"
               required
+              minLength={8}
               className="w-full rounded-xl border border-blue-200 px-4 py-3 text-slate-900 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-              placeholder="••••••••"
+              placeholder="อย่างน้อย 8 ตัวอักษร"
             />
           </label>
 
@@ -50,13 +62,13 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
             type="submit"
             className="w-full rounded-xl bg-blue-700 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-800"
           >
-            เข้าสู่ระบบ
+            สมัครสมาชิก
           </button>
 
           <p className="text-center text-sm text-slate-600">
-            ยังไม่มีบัญชี?{" "}
-            <Link href="/register" className="font-semibold text-blue-700 hover:text-blue-800">
-              สมัครสมาชิก
+            มีบัญชีอยู่แล้ว?{" "}
+            <Link href="/login" className="font-semibold text-blue-700 hover:text-blue-800">
+              เข้าสู่ระบบ
             </Link>
           </p>
         </form>

@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import type { Role } from "@prisma/client";
 
 import { prisma } from "@/lib/prisma";
 import { redisFeatures } from "@/lib/redis-features";
@@ -11,6 +12,7 @@ export type AuthUser = {
   id: string;
   name: string;
   email: string;
+  role: Role;
 };
 
 function createSessionId() {
@@ -51,6 +53,7 @@ export async function getCurrentUser(): Promise<AuthUser | null> {
       id: true,
       name: true,
       email: true,
+      role: true,
     },
   });
 
@@ -71,6 +74,28 @@ export async function requireUser() {
   }
 
   return user;
+}
+
+export async function requireRole(allowedRoles: Role[]) {
+  const user = await requireUser();
+
+  if (!allowedRoles.includes(user.role)) {
+    redirect(getDefaultDashboardPath(user.role));
+  }
+
+  return user;
+}
+
+export function getDefaultDashboardPath(role: Role) {
+  if (role === "SUPERADMIN") {
+    return "/dashboard/superadmin";
+  }
+
+  if (role === "ADMIN") {
+    return "/dashboard/admin";
+  }
+
+  return "/dashboard/user";
 }
 
 export async function clearUserSession() {
