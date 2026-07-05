@@ -114,8 +114,12 @@ export async function updateLoginBackgroundAction(formData: FormData) {
   const uploadsDir = path.join(process.cwd(), "public", "uploads");
   const targetPath = path.join(uploadsDir, fileName);
 
-  await mkdir(uploadsDir, { recursive: true });
-  await writeFile(targetPath, buffer);
+  try {
+    await mkdir(uploadsDir, { recursive: true });
+    await writeFile(targetPath, buffer);
+  } catch {
+    redirect("/dashboard/superadmin?error=อัปโหลดไฟล์ไม่สำเร็จบนเซิร์ฟเวอร์ กรุณาใช้ URL รูปภาพแทน");
+  }
 
   const updated = await setLoginBackgroundUrl(`/uploads/${fileName}`);
 
