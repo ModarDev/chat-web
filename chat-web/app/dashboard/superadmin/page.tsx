@@ -47,6 +47,9 @@ export default async function SuperAdminDashboardPage({ searchParams }: SuperAdm
           <p className="mb-4 text-sm text-slate-600">
             แนะนำรูปขนาด 1920x1080 และระบบจะแสดงแบบเต็มจอ responsive ตามอุปกรณ์ (อัปโหลดลง S3/SeaweedFS)
           </p>
+          <p className="mb-4 text-sm text-slate-500">
+            เมื่ออัปโหลดไฟล์ ระบบจะใช้ลิงก์ชั่วคราวแบบ signed URL อัตโนมัติ แม้ bucket จะไม่ public
+          </p>
 
           <form action={updateLoginBackgroundAction} className="space-y-4">
             <label className="block space-y-2">
