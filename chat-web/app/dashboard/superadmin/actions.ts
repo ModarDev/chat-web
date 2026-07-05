@@ -85,7 +85,12 @@ export async function updateLoginBackgroundAction(formData: FormData) {
   }
 
   if (parsedUrl) {
-    await setLoginBackgroundUrl(parsedUrl);
+    const updated = await setLoginBackgroundUrl(parsedUrl);
+
+    if (!updated) {
+      redirect("/dashboard/superadmin?error=ยังไม่พร้อมอัปเดตพื้นหลัง กรุณารัน migration ก่อน");
+    }
+
     revalidatePath("/login");
     redirect("/dashboard/superadmin?success=อัปเดตพื้นหลังล็อกอินเรียบร้อยแล้ว");
   }
@@ -112,7 +117,12 @@ export async function updateLoginBackgroundAction(formData: FormData) {
   await mkdir(uploadsDir, { recursive: true });
   await writeFile(targetPath, buffer);
 
-  await setLoginBackgroundUrl(`/uploads/${fileName}`);
+  const updated = await setLoginBackgroundUrl(`/uploads/${fileName}`);
+
+  if (!updated) {
+    redirect("/dashboard/superadmin?error=ยังไม่พร้อมอัปเดตพื้นหลัง กรุณารัน migration ก่อน");
+  }
+
   revalidatePath("/login");
 
   redirect("/dashboard/superadmin?success=อัปโหลดและอัปเดตพื้นหลังล็อกอินเรียบร้อยแล้ว");
