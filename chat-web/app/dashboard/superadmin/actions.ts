@@ -53,6 +53,40 @@ function getSafeImageExtension(mimeType: string) {
   return null;
 }
 
+function getSafeImageExtensionFromName(fileName: string) {
+  const lower = fileName.trim().toLowerCase();
+
+  if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) {
+    return "jpg";
+  }
+
+  if (lower.endsWith(".png")) {
+    return "png";
+  }
+
+  if (lower.endsWith(".webp")) {
+    return "webp";
+  }
+
+  return null;
+}
+
+function getContentTypeByExtension(ext: string) {
+  if (ext === "jpg") {
+    return "image/jpeg";
+  }
+
+  if (ext === "png") {
+    return "image/png";
+  }
+
+  if (ext === "webp") {
+    return "image/webp";
+  }
+
+  return "application/octet-stream";
+}
+
 function parseBackgroundUrl(rawValue: string) {
   const value = rawValue.trim();
 
@@ -109,7 +143,7 @@ export async function updateLoginBackgroundAction(formData: FormData) {
     redirect("/dashboard/superadmin?error=ไฟล์ใหญ่เกิน 8MB");
   }
 
-  const ext = getSafeImageExtension(file.type);
+  const ext = getSafeImageExtension(file.type) ?? getSafeImageExtensionFromName(file.name);
 
   if (!ext) {
     redirect("/dashboard/superadmin?error=รองรับเฉพาะไฟล์ JPG, PNG, WEBP");
@@ -121,7 +155,7 @@ export async function updateLoginBackgroundAction(formData: FormData) {
   try {
     await uploadObject({
       key: objectKey,
-      contentType: file.type,
+      contentType: file.type || getContentTypeByExtension(ext),
       body: buffer,
     });
   } catch {

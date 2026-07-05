@@ -80,6 +80,16 @@ export default async function SuperAdminDashboardPage({ searchParams }: SuperAdm
             </button>
           </form>
 
+          {error ? (
+            <p className="mt-4 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">{error}</p>
+          ) : null}
+
+          {success ? (
+            <p className="mt-4 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+              {success}
+            </p>
+          ) : null}
+
           <p className="mt-4 text-sm text-slate-600">รูปที่ใช้งานปัจจุบัน: {loginBackgroundUrl ?? "ยังไม่ได้ตั้งค่า"}</p>
         </section>
 
